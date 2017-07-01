@@ -83,3 +83,12 @@ void TestRunner::compareSolversOnOneTest(std::tuple<std::vector<int>, int, char*
 	}
 
 }
+
+void TestRunner::compare(){
+	std::vector<std::tuple<std::vector<int>, int, char*>> tests = TestLoader().loadTests();
+	for(std::tuple<std::vector<int>, int, char*> test : tests){
+		compareSolversOnOneTest(test);
+	}
+}
+
+

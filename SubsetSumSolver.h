@@ -2,6 +2,7 @@
 #define SUBSETSUMSOLVER_H_
 
 #include <vector>
+#include <climits>
 
 class SubsetSumSolver{
 public:
@@ -24,6 +25,17 @@ public:
 private:
 	std::vector<int> generate(std::vector<int>& tab, int s, bool (*comp)(int, int));
 	std::vector<int> merge(std::vector<int>& tab_a, std::vector<int>& tab_b, bool (*comp)(int, int));
+};
+
+class Helpers{
+public:
+	std::vector<int> reduce(std::vector<int>& tab);
+	std::vector<int> fftSumset(std::vector<int>& tabA, std::vector<int>& tabB);
+};
+
+class KoiliarisXuSolver : public SubsetSumSolver{
+public:
+	bool solve(std::vector<int>& tab, int s);
 };
 
 #endif /* SUBSETSUMSOLVER_H_ */

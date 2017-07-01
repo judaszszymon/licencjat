@@ -12,6 +12,7 @@ INCLUDES = -I. -I$(CUDA_INSTALL_PATH)/include
 
 # Libraries
 LIB_CUDA := -lcuda
+LIB_FFTW := -lfftw3 -lm
 
 
 # Options
@@ -20,7 +21,7 @@ NVCCOPTIONS = -arch sm_30 -ptx
 # Common flags
 COMMONFLAGS += $(INCLUDES)
 NVCCFLAGS += $(COMMONFLAGS) $(NVCCOPTIONS)
-CXXFLAGS += $(COMMONFLAGS) -std=c++11
+CXXFLAGS += $(COMMONFLAGS) -std=c++11 -g -Wall
 CFLAGS += $(COMMONFLAGS)
 
 
@@ -28,7 +29,7 @@ CFLAGS += $(COMMONFLAGS)
 CUDA_OBJS = kernels.ptx 
 OBJS = main.cpp.o SubsetSumSolver.cpp.o Runner.cpp.o
 TARGET = solution.x
-LINKLINE = $(LINK) -o $(TARGET) $(OBJS) $(LIB_CUDA)
+LINKLINE = $(LINK) -o $(TARGET) $(OBJS) $(LIB_CUDA) $(LIB_FFTW)
 
 .SUFFIXES:	.c	.cpp	.cu	.o	
 %.c.o: %.c
