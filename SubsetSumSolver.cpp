@@ -103,6 +103,34 @@ std::vector<int> TwoListSolver::generate(std::vector<int>& tab, int s, bool (*co
 	return result;
 }
 
+bool increasingComparator(int a, int b){ return a < b;}
+bool decreasingComparator(int a, int b){ return b < a;}
+
 bool TwoListSolver::solve(std::vector<int>& tab, int s){
+	std::vector<int> a, b;
+	std::vector<int>* t = new std::vector<int>[2];
+	t[0] = a;
+	t[1] = b;
+	for (int i = 0; i < tab.size(); i++){
+		t[i%2].push_back(tab[i]);
+	}
+	std::vector<int> incTab = generate(a, s, increasingComparator);
+	std::vector<int> decTab = generate(b, s, decreasingComparator);
+
+	std::vector<int>::iterator incIt = incTab.begin();
+	std::vector<int>::iterator decIt = decTab.begin();
+
+	while(incIt != incTab.end() && decIt != decTab.end()){
+		int trackedValue = *incIt + *decIt;
+		if(trackedValue == s){
+			return true;
+		}
+		if(trackedValue < s){
+			incIt++;
+		} else{
+			decIt++;
+		}
+	}
 	return false;
+
 }
