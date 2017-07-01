@@ -5,6 +5,8 @@
 #include <iostream>
 #include <fstream>
 #include <tuple>
+#include <cassert>
+#include <chrono>
 
 std::vector<std::tuple<std::vector<int>, int, char*>> TestLoader::loadTests(){
 	std::vector<std::tuple<std::vector<int>, int, char*>> result;
@@ -41,7 +43,6 @@ std::tuple<std::vector<int>, int, char*> TestLoader::loadTestFromFile(char* file
 }
 
 std::pair<std::vector<SubsetSumSolver>, std::vector<char*>> TestRunner::prepareSolvers(){
-//	std::vector<std::pair<SubsetSumSolver, char*>> result;
 	std::vector<SubsetSumSolver> solversInstances;
 	std::vector<char*> solverNames;
 
@@ -53,12 +54,32 @@ std::pair<std::vector<SubsetSumSolver>, std::vector<char*>> TestRunner::prepareS
 
 	solversInstances.push_back(TwoListSolver());
 	solverNames.push_back((char*) "two list solver");
+
+	assert(solverNames.size() == solversInstances.size());
+
 	return std::pair<std::vector<SubsetSumSolver>, std::vector<char*>>(solversInstances, solverNames);
 }
 
 
 void TestRunner::compareSolversOnOneTest(std::tuple<std::vector<int>, int, char*> testInstance){
+	std::cout << "Running on test: " << std::get<2>(testInstance) << std::endl;
 
 
+
+	std::pair<std::vector<SubsetSumSolver>, std::vector<char*>> solversTuple = prepareSolvers();
+	std::vector<SubsetSumSolver> solvers = std::get<0>(solversTuple);
+	std::vector<char*> solversNames = std::get<1>(solversTuple);
+	std::vector<SubsetSumSolver>::iterator solverIt = solvers.begin();
+	std::vector<char*>::iterator solverNameIt = solversNames.begin();
+	for(; solverIt != solvers.end() && solverNameIt != solversNames.end(); solverIt++, solverNameIt++){
+		std::cout << "Testing solver: " << *solverNameIt << std::endl;
+		std::vector<int> tab = std::get<0>(testInstance);
+		int s = std::get<1>(testInstance);
+		std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+		(*solverIt).solve(tab, s);
+		std::chrono::steady_clock::time_point end= std::chrono::steady_clock::now();
+		std::cout << "Took " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count()
+				<<" ms" <<std::endl;
+	}
 
 }
