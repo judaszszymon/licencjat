@@ -5,8 +5,8 @@
 
 class SubsetSumSolver{
 public:
-	virtual bool solve(std::vector<int>& tab, int s) = 0;
-	virtual ~SubsetSumSolver() = 0;
+	virtual bool solve(std::vector<int>& tab, int s);
+	virtual ~SubsetSumSolver();
 };
 
 

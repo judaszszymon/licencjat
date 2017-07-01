@@ -20,13 +20,13 @@ NVCCOPTIONS = -arch sm_30 -ptx
 # Common flags
 COMMONFLAGS += $(INCLUDES)
 NVCCFLAGS += $(COMMONFLAGS) $(NVCCOPTIONS)
-CXXFLAGS += $(COMMONFLAGS)
+CXXFLAGS += $(COMMONFLAGS) -std=c++11
 CFLAGS += $(COMMONFLAGS)
 
 
 
 CUDA_OBJS = kernels.ptx 
-OBJS = main.cpp.o SubsetSumSolver.cpp.o
+OBJS = main.cpp.o SubsetSumSolver.cpp.o Runner.cpp.o
 TARGET = solution.x
 LINKLINE = $(LINK) -o $(TARGET) $(OBJS) $(LIB_CUDA)
 
