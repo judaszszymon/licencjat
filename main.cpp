@@ -1,12 +1,16 @@
 #include "SubsetSumSolver.h"
+#include <iostream>
 
 int main(){
 	DpSolver solver;
-	int tab[] = {1, 2, 3};
-	int n = 3;
+	std::vector<int> tab;
+	tab.push_back(1);
+	tab.push_back(2);
+	tab.push_back(3);
 	int s = 4;
-	if(solver.solve(tab, n, s)){
-		return 0;
+	if(solver.solve(tab, s)){
+		std::cout << "yes!";
 	}
-	return 1;
+	std::cout << "no!";
+	return 0;
 }

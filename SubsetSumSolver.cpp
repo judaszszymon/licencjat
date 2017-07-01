@@ -1,18 +1,22 @@
 #include "SubsetSumSolver.h"
 #include <algorithm>
 #include "cstring"
+#include <functional>
+#include <vector>
 SubsetSumSolver::~SubsetSumSolver(){}
-bool SubsetSumSolver::solve(int* tab, int n, int s){return 0;}
+bool SubsetSumSolver::solve(std::vector<int>& tab, int s){return 0;}
 
-bool DpSolver::solve(int* tab, int n, int s){
-	int* currentTab = new int[s+1];
-	int* prevTab = new int[s+1];
-	int* tmp;
-	std::memset(currentTab, 0, sizeof(int) * (s+1));
-	std::memset(prevTab, 0, sizeof(int) * (s+1));
+bool DpSolver::solve(std::vector<int>& tab, int s){
+	std::vector<int> currentTab;
+	std::vector<int> prevTab;
+	std::vector<int> tmp;
+
+	std::sort(tab.begin(), tab.end());
+	currentTab.resize(s+1, 0);
+	prevTab.resize(s+1, 0);
 	prevTab[0] = 1;
 
-	for(int i = 0; i < n; i++){
+	for(int i = 0; i < tab.size(); i++){
 		int number = tab[i];
 		for(int p = 0; p < s; p++){
 			if(prevTab[p]){
@@ -23,27 +27,24 @@ bool DpSolver::solve(int* tab, int n, int s){
 			}
 		}
 		if(currentTab[s]){
-			delete [] currentTab;
-			delete [] prevTab;
 			return 1;
 		}
 		std::swap(currentTab, prevTab);
 	}
-	delete [] currentTab;
-	delete [] prevTab;
 	return 0;
 }
 
-bool DpSolverPlus::solve(int* tab, int n, int s){
-	int* currentTab = new int[s+1];
-	int* prevTab = new int[s+1];
-	int* tmp;
-	std::sort(tab, tab+n);
-	std::memset(currentTab, 0, sizeof(int) * (s+1));
-	std::memset(prevTab, 0, sizeof(int) * (s+1));
+bool DpSolverPlus::solve(std::vector<int>& tab, int s){
+	std::vector<int> currentTab;
+	std::vector<int> prevTab;
+	std::vector<int> tmp;
+
+	std::sort(tab.begin(), tab.end());
+	currentTab.resize(s+1, 0);
+	prevTab.resize(s+1, 0);
 	prevTab[0] = 1;
 
-	for(int i = 0; i < n; i++){
+	for(int i = 0; i < tab.size(); i++){
 		int number = tab[i];
 		for(int p = 0; p < s; p++){
 			if(number + p > s){
@@ -54,14 +55,54 @@ bool DpSolverPlus::solve(int* tab, int n, int s){
 			}
 		}
 		if(currentTab[s]){
-			delete [] currentTab;
-			delete [] prevTab;
 			return 1;
 		}
-		memcpy(prevTab, currentTab, sizeof(int) * (s+1));
+		prevTab = currentTab;
 	}
 
-	delete [] currentTab;
-	delete [] prevTab;
 	return 0;
+}
+
+
+std::vector<int> TwoListSolver::merge(std::vector<int>& tab_a, std::vector<int>& tab_b, bool (*comp)(int, int)){
+
+	std::vector<int> result;
+	int pa, pb;
+	pa = pb = 0;
+	while(pa < tab_a.size() && pb < tab_b.size()){
+		if(comp(tab_a[pa], tab_b[pb])){
+			result.push_back(tab_a[pa++]);
+		} else{
+			result.push_back(tab_b[pb++]);
+		}
+	}
+	while(pa < tab_a.size()){
+		result.push_back(tab_a[pa++]);
+	}
+	while(pb < tab_b.size()){
+		result.push_back(tab_b[pb++]);
+	}
+	return result;
+}
+
+std::vector<int> TwoListSolver::generate(std::vector<int>& tab, int s, bool (*comp)(int, int)){
+	std::vector<int> newPart;
+	std::vector<int> result, merged;
+	result.push_back(0);
+
+	for(int i = 0; i < tab.size(); i++){
+		int newNumber = tab.at(i);
+		for(int j = 0; j < result.size(); j++){
+			newPart.push_back(result.at(j) + newNumber);
+		}
+		merged = merge(result, newPart, comp);
+		std::swap(result, merged);
+		newPart.clear();
+	}
+
+	return result;
+}
+
+bool TwoListSolver::solve(std::vector<int>& tab, int s){
+	return false;
 }
