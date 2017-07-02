@@ -224,13 +224,6 @@ void addVect(fftw_complex* u, fftw_complex* w, fftw_complex* v, int n){
 	}
 }
 
-//void printVect(std::vector<double>& tab){
-//	for (double d : tab){
-//		std::cout << d << " ";
-//	}
-//	std::cout << std::endl;
-//}
-
 std::vector<int> Helpers::fftSumset(std::vector<int>& tabA, std::vector<int>& tabB){
 	std::vector<double> polyCharA = tabToCharPoly(tabA);
 	std::vector<double> polyCharB = tabToCharPoly(tabB);
@@ -272,3 +265,41 @@ std::vector<int> Helpers::fftSumset(std::vector<int>& tabA, std::vector<int>& ta
 	fftw_free(outB);
 	return charPolyToTab(polyCharC);
 }
+
+std::pair<std::vector<int>, std::vector<int>> KoiliarisXuSolver::parseMultiset(std::vector<int> tab){
+	std::sort(tab.begin(), tab.end());
+	std::vector<int> results[2];
+	for(int i = 0; i < tab.size(); i++){
+		results[i%2].push_back(tab[i]);
+	}
+	return std::pair<std::vector<int>, std::vector<int>>(results[0], results[1]);
+}
+
+
+std::vector<int> KoiliarisXuSolver::recursiveSolveSet(std::vector<int> tab){
+	if(tab.size() == 0){
+		return tab;
+	}
+	std::vector<int> parts[2];
+	for(int i = 0; i < tab.size(); i++){
+		parts[i%2].push_back(tab[i]);
+	}
+
+	std::vector<int> sumsets[2];
+	for(int i = 0; i < 2; i++){
+		sumsets[i] = recursiveSolveSet(parts[i]);
+	}
+	return helper.fftSumset(sumsets[0], sumsets[1]);
+}
+
+std::vector<std::vector<int>> KoiliarisXuSolver::logPartition(std::vector<int> tab, int r0){
+	std::vector<std::vector<int>> result;
+	std::sort(tab.begin(), tab.end());
+	while(true){
+		//TODO
+		break;
+	}
+
+	return result;
+}
+

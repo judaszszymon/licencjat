@@ -36,6 +36,11 @@ public:
 class KoiliarisXuSolver : public SubsetSumSolver{
 public:
 	bool solve(std::vector<int>& tab, int s);
+private:
+	std::pair<std::vector<int>, std::vector<int>> parseMultiset(std::vector<int> tab);
+	std::vector<int> recursiveSolveSet(std::vector<int> tab);
+	std::vector<std::vector<int>> logPartition(std::vector<int> tab, int r0);
+	Helpers helper;
 };
 
 #endif /* SUBSETSUMSOLVER_H_ */
