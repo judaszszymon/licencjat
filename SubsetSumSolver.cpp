@@ -429,31 +429,55 @@ std::vector<std::vector<int>> KoiliarisXuSolver::logPartition(std::vector<int>& 
 	return result;
 }
 
-std::vector<std::pair<int, int>> KoiliarisXuSolver::lemma_2_8(std::vector<int>& tab, bool sorted){
+std::vector<std::pair<int, int>> KoiliarisXuSolver::lemma_2_8(std::vector<int>& tab, int alpha){
 	if(tab.size() == 0){
 		return std::vector<std::pair<int, int>>(1, std::pair<int, int>(0, 0));
 	}
-	if(!sorted){
-		std::sort(tab.begin(), tab.end());
-	}
-	std::vector<int> parts[2];
-	std::vector<int>::iterator it[2];
-	it[0] = tab.begin();
-	it[1] = tab.rbegin();
+
+	assert(std::is_sorted(tab.begin(), tab.end()));
+	std::vector<int> lower, upper;
+
 	int i = 0;
-	while(it[0] != it[1]){
-		parts[i].push_back(*it[i]);
-		it[i++]++;
+	int x = tab.front();
+	int l = tab.back() - x;
+
+	for (i = 0; i < tab.size()/2; i++){
+		lower.push_back(tab[i]);
 	}
-	std::reverse(parts[1].begin(), parts[1].end());
+	for(; i < tab.size(); i++){
+		upper.push_back(tab[i]);
+	}
 
-	auto L = lemma_2_8(parts[0], true);
-	auto R = lemma_2_8(parts[1], true);
+	auto L = lemma_2_8(lower, alpha);
+	auto R = lemma_2_8(upper, alpha);
 
-	return lemma_2_7(L, R);
+	return lemma_2_7(L, R, x, l, alpha);
+}
+
+std::pair<int, int> fScale(std::pair<int, int>& ij, int x){
+	return std::pair<int, int>(ij.first - x * ij.second, ij.second);
+}
+
+std::pair<int, int> fScaleInv(std::pair<int, int>& ij, int x){
+	return std::pair<int, int>(ij.first + x * ij.second, ij.second);
 }
 
 std::vector<std::pair<int, int>> KoiliarisXuSolver::lemma_2_7(std::vector<std::pair<int, int>>& tabA,
-		std::vector<std::pair<int, int>>& tabB){
+		std::vector<std::pair<int, int>>& tabB, int x, int l, int alpha){
+	std::vector<std::pair<int, int>> X, Y;
+	for(auto& p : tabA){
+		X.push_back(fScale(p, x));
+	}
+	for(auto& p : tabB){
+		Y.push_back(fScale(p, x));
+	}
 
+	auto XY = helper.fftSumset2d(X, Y, l*alpha, alpha);
+	std::vector<std::pair<int, int>> Z;
+	for(auto& p: XY){
+		if(p.first <= l * alpha && p.second <= alpha){
+			Z.push_back(fScaleInv(p, x));
+		}
+	}
+	return Z;
 }

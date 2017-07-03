@@ -42,8 +42,8 @@ private:
 	std::pair<std::vector<int>, std::vector<int>> parseMultiset(std::vector<int>& tab);
 	std::vector<int> recursiveSolveSet(std::vector<int>& tab);
 	std::vector<std::vector<int>> logPartition(std::vector<int>& tab, int r0);
-	std::vector<std::pair<int, int>> lemma_2_8(std::vector<int>& tab, bool sorted = false);
-	std::vector<std::pair<int, int>> lemma_2_7(std::vector<std::pair<int, int>>& tabA, std::vector<std::pair<int, int>>& tabB);
+	std::vector<std::pair<int, int>> lemma_2_8(std::vector<int>& tab, int alpha);
+	std::vector<std::pair<int, int>> lemma_2_7(std::vector<std::pair<int, int>>& tabA, std::vector<std::pair<int, int>>& tabB, int x, int l, int alpha);
 
 	Helpers helper;
 };
