@@ -4,6 +4,7 @@
 #include <functional>
 #include <vector>
 #include <queue>
+#include <cassert>
 #include <fftw3.h>
 
 SubsetSumSolver::~SubsetSumSolver(){}
@@ -191,11 +192,59 @@ std::vector<double> tabToCharPoly(std::vector<int>& tab){
 	return result;
 }
 
+std::vector<std::vector<double>> tabToCharPoly(std::vector<std::pair<int, int>>& tab){
+	std::vector<std::vector<double>> result;
+	for(std::pair<int, int> point : tab){
+		if(point.first >= result.size()){
+			result.resize(point.first+1, std::vector<double>());
+		}
+		if(point.second >= result[point.first].size()){
+			result[point.first].resize(point.second+1, 0);
+		}
+		result[point.first][point.second] = 1;
+	}
+	return result;
+}
+
+void normalize2dTab(std::vector<std::vector<double>>& tabA, std::vector<std::vector<double>>& tabB){
+	int firstDim = std::max(tabA.size(), tabB.size());
+	int secondDim = 0;
+	for(std::vector<double>& t : tabA){
+		secondDim = std::max<int>(secondDim, t.size());
+	}
+	for(std::vector<double>& t : tabB){
+		secondDim = std::max<int>(secondDim, t.size());
+	}
+
+	tabA.resize(2*firstDim);
+	tabB.resize(2*firstDim);
+
+	for(std::vector<double>& t : tabA){
+		t.resize(2*secondDim);
+	}
+	for(std::vector<double>& t : tabB){
+		t.resize(2*secondDim);
+	}
+
+}
+
 std::vector<int> charPolyToTab(std::vector<double>& tab){
 	std::vector<int> result;
 	for(int i = 0; i < tab.size(); i++){
 		if(tab[i] > 0.5 * tab.size()){
 			result.push_back(i);
+		}
+	}
+	return result;
+}
+
+std::vector<std::pair<int, int>> charPolyToTab(std::vector<std::vector<double>>& tab, int scale){
+	std::vector<std::pair<int, int>> result;
+	for(int i = 0; i < tab.size(); i++){
+		for(int j = 0; j < tab[i].size(); j++){
+			if(tab[i][j] > 0.5 * scale){
+				result.push_back(std::pair<int, int>(i,j));
+			}
 		}
 	}
 	return result;
@@ -209,9 +258,28 @@ void putToComplex(std::vector<double>& input, fftw_complex* output){
 	}
 }
 
+void putToComplex(std::vector<std::vector<double>>& input, fftw_complex* output){
+	int i = 0;
+	for(std::vector<double>& vect : input){
+		for(double number : vect){
+			output[i][0] = number;
+			output[i++][1] = 0;
+		}
+	}
+}
+
 void getFromComplex(fftw_complex* input, std::vector<double>& output){
 	for (int i = 0; i < output.size(); i++){
 		output[i] = input[i][0];
+	}
+}
+void getFromComplex(fftw_complex* input, std::vector<std::vector<double>>& output){
+	int i = 0;
+	int p = 0;
+	for(std::vector<double>& vect : output){
+		for(i = 0; i < vect.size(); i++){
+			vect[i] = input[p++][0];
+		}
 	}
 }
 
@@ -266,6 +334,56 @@ std::vector<int> Helpers::fftSumset(std::vector<int>& tabA, std::vector<int>& ta
 	return charPolyToTab(polyCharC);
 }
 
+std::vector<std::pair<int, int>> Helpers::fftSumset2d(std::vector<std::pair<int, int>>& tabA,
+		std::vector<std::pair<int, int>>& tabB, int u, int v){
+
+
+	std::vector<std::vector<double>> polyCharA = tabToCharPoly(tabA);
+	std::vector<std::vector<double>> polyCharB = tabToCharPoly(tabB);
+	std::vector<std::vector<double>> polyCharC;
+	normalize2dTab(polyCharA, polyCharB);
+	int degreeX = polyCharA.size();
+	int degreeY = polyCharA[0].size();
+
+	polyCharC.resize(degreeX, std::vector<double>(degreeY, 0));
+
+	fftw_complex *inA, *inB, *outA, *outB;
+	fftw_plan planA, planB, planC;
+	inA = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * degreeX * degreeY);
+	inB = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * degreeX * degreeY);
+	outA = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * degreeX * degreeY);
+	outB = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * degreeX * degreeY);
+
+	planA = fftw_plan_dft_2d(degreeX, degreeY, inA, outA, FFTW_FORWARD, FFTW_ESTIMATE);
+	planB = fftw_plan_dft_2d(degreeX, degreeY, inB, outB, FFTW_FORWARD, FFTW_ESTIMATE);
+	planC = fftw_plan_dft_2d(degreeX, degreeY, inA, outA, FFTW_BACKWARD, FFTW_ESTIMATE);
+
+	putToComplex(polyCharA, inA);
+	putToComplex(polyCharB, inB);
+
+	fftw_execute(planA);
+	fftw_execute(planB);
+
+	addVect(outA, outB, inA, degreeX*degreeY);
+
+	fftw_execute(planC);
+	fftw_destroy_plan(planA);
+	fftw_destroy_plan(planB);
+	fftw_destroy_plan(planC);
+
+
+	getFromComplex(outA, polyCharC);
+	fftw_free(inA);
+	fftw_free(inB);
+	fftw_free(outA);
+	fftw_free(outB);
+	return charPolyToTab(polyCharC, degreeX*degreeY);
+
+
+
+}
+
+
 std::pair<std::vector<int>, std::vector<int>> KoiliarisXuSolver::parseMultiset(std::vector<int> tab){
 	std::sort(tab.begin(), tab.end());
 	std::vector<int> results[2];
@@ -293,13 +411,21 @@ std::vector<int> KoiliarisXuSolver::recursiveSolveSet(std::vector<int> tab){
 }
 
 std::vector<std::vector<int>> KoiliarisXuSolver::logPartition(std::vector<int> tab, int r0){
+	assert(r0 > 0);
 	std::vector<std::vector<int>> result;
+	result.push_back(std::vector<int>());
 	std::sort(tab.begin(), tab.end());
-	while(true){
-		//TODO
-		break;
+	auto it = tab.begin();
+	while(it != tab.end()){
+		int curValue = *it;
+		if (curValue > r0){
+			r0 *= 2;
+			result.push_back(std::vector<int>());
+			continue;
+		}
+		result.back().push_back(curValue);
+		it++;
 	}
-
 	return result;
 }
 

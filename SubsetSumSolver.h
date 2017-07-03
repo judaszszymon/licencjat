@@ -31,6 +31,8 @@ class Helpers{
 public:
 	std::vector<int> reduce(std::vector<int>& tab);
 	std::vector<int> fftSumset(std::vector<int>& tabA, std::vector<int>& tabB);
+	std::vector<std::pair<int, int>> fftSumset2d(std::vector<std::pair<int, int>>& tabA, std::vector<std::pair<int, int>>& tabB, int u, int v);
+
 };
 
 class KoiliarisXuSolver : public SubsetSumSolver{
