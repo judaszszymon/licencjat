@@ -6,6 +6,8 @@
 #include <queue>
 #include <cassert>
 #include <fftw3.h>
+#include <set>
+#include <cmath>
 
 SubsetSumSolver::~SubsetSumSolver(){}
 
@@ -152,14 +154,14 @@ bool TwoListSolver::solve(std::vector<int>& tab, int s){
 
 }
 
-std::vector<int> Helpers::reduce(std::vector<int>& tab){
+std::vector<int> Helpers::reduce(std::vector<int>& tab, int s){
 	std::priority_queue<int, std::vector<int>, std::greater<int>> priorityQueue;
 	std::vector<int> result;
 	for (int number : tab){
 		priorityQueue.push(number);
 	}
 
-	while (!priorityQueue.empty()){
+	while (!priorityQueue.empty() && priorityQueue.top() <= s){
 		int topElement = priorityQueue.top();
 		int topElementCount = 0;
 		while(!priorityQueue.empty() && priorityQueue.top() == topElement) {
@@ -228,9 +230,10 @@ void normalize2dTab(std::vector<std::vector<double>>& tabA, std::vector<std::vec
 
 }
 
-std::vector<int> charPolyToTab(std::vector<double>& tab){
+std::vector<int> charPolyToTab(std::vector<double>& tab, int u){
 	std::vector<int> result;
-	for(int i = 0; i < tab.size(); i++){
+	int end = std::min<int>(tab.size(), u);
+	for(int i = 0; i < end; i++){
 		if(tab[i] > 0.5 * tab.size()){
 			result.push_back(i);
 		}
@@ -292,7 +295,7 @@ void addVect(fftw_complex* u, fftw_complex* w, fftw_complex* v, int n){
 	}
 }
 
-std::vector<int> Helpers::fftSumset(std::vector<int>& tabA, std::vector<int>& tabB){
+std::vector<int> Helpers::fftSumset(std::vector<int>& tabA, std::vector<int>& tabB, int u){
 	std::vector<double> polyCharA = tabToCharPoly(tabA);
 	std::vector<double> polyCharB = tabToCharPoly(tabB);
 	std::vector<double> polyCharC;
@@ -331,7 +334,7 @@ std::vector<int> Helpers::fftSumset(std::vector<int>& tabA, std::vector<int>& ta
 	fftw_free(inB);
 	fftw_free(outA);
 	fftw_free(outB);
-	return charPolyToTab(polyCharC);
+	return charPolyToTab(polyCharC, u);
 }
 
 std::vector<std::pair<int, int>> Helpers::fftSumset2d(std::vector<std::pair<int, int>>& tabA,
@@ -394,7 +397,7 @@ std::pair<std::vector<int>, std::vector<int>> KoiliarisXuSolver::parseMultiset(s
 }
 
 
-std::vector<int> KoiliarisXuSolver::recursiveSolveSet(std::vector<int>& tab){
+std::vector<int> KoiliarisXuSolver::recursiveSolveSet(std::vector<int>& tab, int u){
 	if(tab.size() == 0){
 		return tab;
 	}
@@ -405,9 +408,9 @@ std::vector<int> KoiliarisXuSolver::recursiveSolveSet(std::vector<int>& tab){
 
 	std::vector<int> sumsets[2];
 	for(int i = 0; i < 2; i++){
-		sumsets[i] = recursiveSolveSet(parts[i]);
+		sumsets[i] = recursiveSolveSet(parts[i], u);
 	}
-	return helper.fftSumset(sumsets[0], sumsets[1]);
+	return helper.fftSumset(sumsets[0], sumsets[1], u);
 }
 
 std::vector<std::vector<int>> KoiliarisXuSolver::logPartition(std::vector<int>& tab, int r0){
@@ -482,16 +485,87 @@ std::vector<std::pair<int, int>> KoiliarisXuSolver::lemma_2_7(std::vector<std::p
 	return Z;
 }
 
-
 std::vector<int> KoiliarisXuSolver::lemma_2_9(std::vector<int> tab, int x, int l, int u){
 	auto S = lemma_2_8(tab, u/x);
 	std::vector<int> result;
-
+	std::set<int> gotNumbers;
 	for(auto& p : S){
-		if(p.first <= u){
+		if(p.first <= u && !gotNumbers.count(p.first)){
 			result.push_back(p.first);
+			gotNumbers.insert(p.first);
 		}
 	}
+
 	return result;
+}
+
+
+std::vector<std::vector<int>> KoiliarisXuSolver::lemma_2_11(std::vector<int> tab, int r0, int u){
+	auto partition = logPartition(tab, r0);
+	std::vector<std::vector<int>> result;
+	int l = 0;
+	int r = r0;
+	for(auto& part : partition){
+		std::vector<int> sumset = lemma_2_9(part, l, r, u);
+		l = r+1;
+		r *= 2;
+		result.push_back(sumset);
+	}
+	return result;
+}
+
+int getR0(int u, int n, double c = 1){
+	double sqrt_n = sqrt(n);
+	double crt_u = pow(u, 1.0 / 3.0);
+	if(crt_u < c*sqrt_n){
+		return (int) pow(u, 2.0 / 3.0) + 1;
+	} else {
+		return (int) (u / sqrt_n) + 1;
+	}
+}
+
+std::vector<int> KoiliarisXuSolver::theorem_2_2(std::vector<int> tab, int u){
+	int r0 = getR0(u, tab.size());
+	auto sumParts = lemma_2_11(tab, r0, u);
+
+	auto P = sumParts[0];
+	for(int i = 1; i < sumParts.size(); i++){
+		P = helper.fftSumset(P, sumParts[i], u);
+	}
+	return P;
+}
+
+std::vector<int> KoiliarisXuSolver::generateViaTheorem_2_2(std::vector<int>& tab, int u){
+	std::vector<int> partition[2];
+	int i = 0;
+	for(i = 0; i < tab.size(); i++){
+		partition[i%2].push_back(tab[i]);
+	}
+	auto sumA = theorem_2_2(partition[0], u);
+	auto sumB = theorem_2_2(partition[1], u);
+
+	return helper.fftSumset(sumA, sumB, u);
+}
+
+bool shouldRecursive(std::vector<int>& tab, int s){
+	return false;
+	//TODO provide implementation
+}
+
+bool KoiliarisXuSolver::solve(std::vector<int>& tab, int s){
+	tab = helper.reduce(tab, s);
+	std::vector<int> sumsets;
+	if(shouldRecursive(tab, s)){
+		sumsets = recursiveSolveSet(tab, s);
+
+	} else{
+		sumsets = generateViaTheorem_2_2(tab, s);
+	}
+	for(int i : sumsets){
+		if(i==s){
+			return true;
+		}
+	}
+	return false;
 }
 
