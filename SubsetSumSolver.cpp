@@ -481,3 +481,17 @@ std::vector<std::pair<int, int>> KoiliarisXuSolver::lemma_2_7(std::vector<std::p
 	}
 	return Z;
 }
+
+
+std::vector<int> KoiliarisXuSolver::lemma_2_9(std::vector<int> tab, int x, int l, int u){
+	auto S = lemma_2_8(tab, u/x);
+	std::vector<int> result;
+
+	for(auto& p : S){
+		if(p.first <= u){
+			result.push_back(p.first);
+		}
+	}
+	return result;
+}
+
