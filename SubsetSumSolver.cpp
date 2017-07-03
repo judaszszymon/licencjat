@@ -384,7 +384,7 @@ std::vector<std::pair<int, int>> Helpers::fftSumset2d(std::vector<std::pair<int,
 }
 
 
-std::pair<std::vector<int>, std::vector<int>> KoiliarisXuSolver::parseMultiset(std::vector<int> tab){
+std::pair<std::vector<int>, std::vector<int>> KoiliarisXuSolver::parseMultiset(std::vector<int>& tab){
 	std::sort(tab.begin(), tab.end());
 	std::vector<int> results[2];
 	for(int i = 0; i < tab.size(); i++){
@@ -394,7 +394,7 @@ std::pair<std::vector<int>, std::vector<int>> KoiliarisXuSolver::parseMultiset(s
 }
 
 
-std::vector<int> KoiliarisXuSolver::recursiveSolveSet(std::vector<int> tab){
+std::vector<int> KoiliarisXuSolver::recursiveSolveSet(std::vector<int>& tab){
 	if(tab.size() == 0){
 		return tab;
 	}
@@ -410,7 +410,7 @@ std::vector<int> KoiliarisXuSolver::recursiveSolveSet(std::vector<int> tab){
 	return helper.fftSumset(sumsets[0], sumsets[1]);
 }
 
-std::vector<std::vector<int>> KoiliarisXuSolver::logPartition(std::vector<int> tab, int r0){
+std::vector<std::vector<int>> KoiliarisXuSolver::logPartition(std::vector<int>& tab, int r0){
 	assert(r0 > 0);
 	std::vector<std::vector<int>> result;
 	result.push_back(std::vector<int>());
@@ -429,3 +429,31 @@ std::vector<std::vector<int>> KoiliarisXuSolver::logPartition(std::vector<int> t
 	return result;
 }
 
+std::vector<std::pair<int, int>> KoiliarisXuSolver::lemma_2_8(std::vector<int>& tab, bool sorted){
+	if(tab.size() == 0){
+		return std::vector<std::pair<int, int>>(1, std::pair<int, int>(0, 0));
+	}
+	if(!sorted){
+		std::sort(tab.begin(), tab.end());
+	}
+	std::vector<int> parts[2];
+	std::vector<int>::iterator it[2];
+	it[0] = tab.begin();
+	it[1] = tab.rbegin();
+	int i = 0;
+	while(it[0] != it[1]){
+		parts[i].push_back(*it[i]);
+		it[i++]++;
+	}
+	std::reverse(parts[1].begin(), parts[1].end());
+
+	auto L = lemma_2_8(parts[0], true);
+	auto R = lemma_2_8(parts[1], true);
+
+	return lemma_2_7(L, R);
+}
+
+std::vector<std::pair<int, int>> KoiliarisXuSolver::lemma_2_7(std::vector<std::pair<int, int>>& tabA,
+		std::vector<std::pair<int, int>>& tabB){
+
+}
