@@ -55,4 +55,17 @@ private:
 	std::vector<int> theorem_2_2(std::vector<int> tab, int u);
 };
 
+
+class BringmannSolver : public SubsetSumSolver{
+public:
+	virtual bool solve(std::vector<int>& tab, int s);
+	bool solve (std::vector<int>& tab, int s, double delta);
+private:
+	std::vector<int> colorCoding(std::vector<int> Z, int t, int k, double delta);
+	std::vector<int> colorCodingLayer(std::vector<int> Z, int t, int l, double delta);
+	std::vector<int> fasterSubsetSum(std::vector<int> Z, int t, double delta);
+	std::vector<std::vector<int>> randomPartition(std::vector<int> Z, int numberOfBuckets);
+	std::vector<int> mergeTo(std::vector<int>& base, std::vector<int> addition);
+};
+
 #endif /* SUBSETSUMSOLVER_H_ */

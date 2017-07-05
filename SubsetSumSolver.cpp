@@ -9,6 +9,7 @@
 #include <set>
 #include <cmath>
 #include <iostream>
+#include <random>
 
 SubsetSumSolver::~SubsetSumSolver(){}
 
@@ -597,4 +598,89 @@ bool KoiliarisXuSolver::solve(std::vector<int>& tab, int s){
 	}
 	return false;
 }
+
+std::vector<std::vector<int>> BringmannSolver::randomPartition(std::vector<int> Z, int numberOfBuckets){
+	std::vector<std::vector<int>> result(numberOfBuckets);
+
+	std::random_device rd;
+	std::mt19937 gen(rd());
+	std::uniform_int_distribution<> dis(0, numberOfBuckets-1);
+
+	for(int number : Z){
+		int bucketNumber = dis(gen);
+		result[bucketNumber].push_back(number);
+	}
+	return result;
+}
+
+std::vector<int> BringmannSolver::mergeTo(std::vector<int>& left, std::vector<int>& right){
+	assert(std::is_sorted(l.begin(), l.end()));
+	assert(std::is_sorted(r.begin(), r.end()));
+	std::vector<int> result;
+
+	int l = 0, r = 0;
+	while (l < left.size() && r < right.size()){
+		if(left[l] < right[r]){
+			result.push_back(left[l++]);
+		} else{
+			result.push_back(right[r++]);
+		}
+	}
+	while (l < left.size() ){
+		result.push_back(left[l++]);
+	}
+	while (r < right.size() ){
+		result.push_back(right[r++]);
+	}
+	return result;
+}
+
+
+
+std::vector<int> BringmannSolver::colorCoding(std::vector<int> Z, int t, int k, double delta){
+	int end = std::log(1.0 / delta) / std::log(4.0 / 3.0);
+	end++;
+	std::vector<int> result;
+	for(int i = 0; i < end; i++){
+		auto partition = randomPartition(Z, k*k);
+		std::vector<int> Sj;
+		for (std::vector<int>& bucket : partition){
+			Sj = helper.fftSumset(Sj, bucket, t);
+		}
+		result = mergeTo(result, Sj);
+	}
+	return result;
+}
+
+std::vector<int> BringmannSolver::colorCodingLayer(std::vector<int> Z, int t, int l, double delta){
+	if(l < std::log(l/delta) / std::log(2)){
+		return colorCoding(Z, t, l, delta);
+	}
+	double m = l / std::log(l/delta);
+	int mSquare = 1;
+	while (mSquare <= m){
+		mSquare *= 2;
+	}
+
+	auto Zpartition = randomPartition(Z, m);
+	double gamma = 6 * std::log(l/delta0) / std::log(2.0);
+	std::vector<std::vector<int>> Sj;
+	for(int j = 0; j < m; j++){
+		S[j] = colorCoding(Zpartition[j], 2*gamma*t/l, gamma, delta/l);
+	}
+
+	for(int h = 1; h < m; h*=2){
+		for(int j = 0; j + h < m; j += 2*h){
+			S[j] = helper.fftSumset(S[j], S[j+h], h*2*gamma*t/l);
+		}
+	}
+
+	return S[0];
+}
+
+std::vector<int> BringmannSolver::fasterSubsetSum(std::vector<int> Z, int t, double delta){
+
+}
+
+
 
