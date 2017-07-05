@@ -1,3 +1,5 @@
 *.o
 gcc/
 *.x
+callgrind*
+wisdom.wis

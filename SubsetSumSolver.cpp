@@ -8,6 +8,7 @@
 #include <fftw3.h>
 #include <set>
 #include <cmath>
+#include <iostream>
 
 SubsetSumSolver::~SubsetSumSolver(){}
 
@@ -23,7 +24,7 @@ void vector_many(std::priority_queue<int, std::vector<int>, std::greater<int>>& 
 	}
 }
 
-bool SubsetSumSolver::solve(std::vector<int>& tab, int s){return 0;}
+//bool SubsetSumSolver::solve(std::vector<int>& tab, int s){return 0;}
 
 bool DpSolver::solve(std::vector<int>& tab, int s){
 	std::vector<int> currentTab;
@@ -83,7 +84,7 @@ bool DpSolverPlus::solve(std::vector<int>& tab, int s){
 }
 
 
-std::vector<int> TwoListSolver::merge(std::vector<int>& tab_a, std::vector<int>& tab_b, bool (*comp)(int, int)){
+std::vector<int> Helpers::merge(std::vector<int>& tab_a, std::vector<int>& tab_b, bool (*comp)(int, int)){
 
 	std::vector<int> result;
 	int pa, pb;
@@ -104,7 +105,7 @@ std::vector<int> TwoListSolver::merge(std::vector<int>& tab_a, std::vector<int>&
 	return result;
 }
 
-std::vector<int> TwoListSolver::generate(std::vector<int>& tab, int s, bool (*comp)(int, int)){
+std::vector<int> Helpers::generate(std::vector<int>& tab, int s, bool (*comp)(int, int)){
 	std::vector<int> newPart;
 	std::vector<int> result, merged;
 	result.push_back(0);
@@ -127,14 +128,14 @@ bool decreasingComparator(int a, int b){ return b < a;}
 
 bool TwoListSolver::solve(std::vector<int>& tab, int s){
 	std::vector<int> a, b;
-	std::vector<int>* t = new std::vector<int>[2];
-	t[0] = a;
-	t[1] = b;
+	std::vector<int>** t = new std::vector<int>*[2];
+	t[0] = &a;
+	t[1] = &b;
 	for (int i = 0; i < tab.size(); i++){
-		t[i%2].push_back(tab[i]);
+		t[i%2]->push_back(tab[i]);
 	}
-	std::vector<int> incTab = generate(a, s, increasingComparator);
-	std::vector<int> decTab = generate(b, s, decreasingComparator);
+	std::vector<int> incTab = helper.generate(a, s, increasingComparator);
+	std::vector<int> decTab = helper.generate(b, s, decreasingComparator);
 
 	std::vector<int>::iterator incIt = incTab.begin();
 	std::vector<int>::iterator decIt = decTab.begin();
@@ -300,6 +301,13 @@ std::vector<int> Helpers::fftSumset(std::vector<int>& tabA, std::vector<int>& ta
 	std::vector<double> polyCharB = tabToCharPoly(tabB);
 	std::vector<double> polyCharC;
 	int degree = std::max(polyCharA.size(), polyCharB.size()) * 2;
+
+	int i = 1;
+	while(i < degree){
+		i += i;
+	}
+	degree = i;
+
 	polyCharA.resize(degree, 0);
 	polyCharB.resize(degree, 0);
 	polyCharC.resize(degree, 0);
@@ -311,9 +319,11 @@ std::vector<int> Helpers::fftSumset(std::vector<int>& tabA, std::vector<int>& ta
 	outA = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * degree);
 	outB = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * degree);
 
-	planA = fftw_plan_dft_1d(degree, inA, outA, FFTW_FORWARD, FFTW_ESTIMATE);
-	planB = fftw_plan_dft_1d(degree, inB, outB, FFTW_FORWARD, FFTW_ESTIMATE);
-	planC = fftw_plan_dft_1d(degree, inA, outA, FFTW_BACKWARD, FFTW_ESTIMATE);
+	fftw_import_wisdom_from_filename("wisdom.wis");
+	planA = fftw_plan_dft_1d(degree, inA, outA, FFTW_FORWARD, FFTW_MEASURE);
+	planB = fftw_plan_dft_1d(degree, inB, outB, FFTW_FORWARD, FFTW_MEASURE);
+	planC = fftw_plan_dft_1d(degree, inA, outA, FFTW_BACKWARD, FFTW_MEASURE);
+	fftw_export_wisdom_to_filename("wisdom.wis");
 
 	putToComplex(polyCharA, inA);
 	putToComplex(polyCharB, inB);
@@ -401,6 +411,16 @@ std::vector<int> KoiliarisXuSolver::recursiveSolveSet(std::vector<int>& tab, int
 	if(tab.size() == 0){
 		return tab;
 	}
+	if(tab.size() == 1){
+		std::vector<int> res;
+		res.push_back(0);
+		res.push_back(tab[0]);
+		return res;
+	}
+
+	if (tab.size() < 20){
+		return helper.generate(tab, u, increasingComparator);
+	}
 	std::vector<int> parts[2];
 	for(int i = 0; i < tab.size(); i++){
 		parts[i%2].push_back(tab[i]);
@@ -435,6 +455,13 @@ std::vector<std::vector<int>> KoiliarisXuSolver::logPartition(std::vector<int>& 
 std::vector<std::pair<int, int>> KoiliarisXuSolver::lemma_2_8(std::vector<int>& tab, int alpha){
 	if(tab.size() == 0){
 		return std::vector<std::pair<int, int>>(1, std::pair<int, int>(0, 0));
+	}
+
+	if(tab.size() == 1){
+		std::vector<std::pair<int, int>> result;
+		result.push_back(std::pair<int, int>(0, 0));
+		result.push_back(std::pair<int, int>(tab[0], 1));
+		return result;
 	}
 
 	assert(std::is_sorted(tab.begin(), tab.end()));
@@ -503,10 +530,12 @@ std::vector<int> KoiliarisXuSolver::lemma_2_9(std::vector<int> tab, int x, int l
 std::vector<std::vector<int>> KoiliarisXuSolver::lemma_2_11(std::vector<int> tab, int r0, int u){
 	auto partition = logPartition(tab, r0);
 	std::vector<std::vector<int>> result;
-	int l = 0;
-	int r = r0;
-	for(auto& part : partition){
-		std::vector<int> sumset = lemma_2_9(part, l, r, u);
+	int l = r0+1;
+	int r = 2*r0;
+
+	result.push_back(recursiveSolveSet(partition[0], u));
+	for(int i = 1; i < partition.size(); i++){ // not for l == 0
+		std::vector<int> sumset = lemma_2_9(partition[i], l, r, u);
 		l = r+1;
 		r *= 2;
 		result.push_back(sumset);

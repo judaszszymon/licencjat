@@ -1,5 +1,6 @@
 import random
 import os.path
+
 INT_MAX = 2147483647
 
 
@@ -20,7 +21,7 @@ def generate_yes_instance(tab_size, subset_size):
 
 def generate_no_instance(tab_size, near_subset_sum):
     tab = []
-    max_size = 10000
+    max_size = 100000
     for i in range(tab_size):
         new_element = random.randrange(2, max_size, 2)
         tab.append(new_element)
@@ -56,7 +57,7 @@ def generate_tests(start_tab_size, end_tab_size, amount_of_same_type_test, direc
 
 
 def main():
-    generate_tests(6, 48, 4, 'tests')
+    generate_tests(6, 1000, 4, 'tests')
 
 if __name__ == '__main__':
     main()

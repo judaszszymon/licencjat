@@ -18,7 +18,7 @@ public:
 	void compare();
 private:
 	void compareSolversOnOneTest(std::tuple<std::vector<int>, int, char*> testInstance);
-	std::pair<std::vector<SubsetSumSolver>, std::vector<char*>> prepareSolvers();
+	std::pair<std::vector<SubsetSumSolver*>, std::vector<char*>> prepareSolvers();
 };
 
 
