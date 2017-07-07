@@ -12,6 +12,7 @@ std::vector<std::tuple<std::vector<int>, int, char*>> TestLoader::loadTests(){
 	std::vector<std::tuple<std::vector<int>, int, char*>> result;
 	std::vector<char*> filenamesVect;
 
+	filenamesVect.push_back((char*)"tests/yes_6_4.txt");
 	filenamesVect.push_back((char*)"tests/yes_10_6.txt");
 	filenamesVect.push_back((char*)"tests/yes_20_8.txt");
 	filenamesVect.push_back((char*)"tests/yes_30_12.txt");
@@ -59,11 +60,11 @@ std::pair<std::vector<SubsetSumSolver*>, std::vector<char*>> TestRunner::prepare
 	solversInstances.push_back(new DpSolver());
 	solverNames.push_back((char*) "dynamic programming solver");
 
-	solversInstances.push_back(new DpSolverPlus());
-	solverNames.push_back((char*) "dynamic programming solver plus");
+//	solversInstances.push_back(new DpSolverPlus());
+//	solverNames.push_back((char*) "dynamic programming solver plus");
 
-	solversInstances.push_back(new TwoListSolver());
-	solverNames.push_back((char*) "two list solver");
+//	solversInstances.push_back(new TwoListSolver());
+//	solverNames.push_back((char*) "two list solver");
 
 	solversInstances.push_back(new KoiliarisXuSolver());
 	solverNames.push_back((char*) "Koiliaris Xu Solver");
