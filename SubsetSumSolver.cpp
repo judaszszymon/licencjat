@@ -614,8 +614,8 @@ std::vector<std::vector<int>> BringmannSolver::randomPartition(std::vector<int> 
 }
 
 std::vector<int> BringmannSolver::mergeTo(std::vector<int>& left, std::vector<int>& right){
-	assert(std::is_sorted(l.begin(), l.end()));
-	assert(std::is_sorted(r.begin(), r.end()));
+	assert(std::is_sorted(left.begin(), left.end()));
+	assert(std::is_sorted(right.begin(), right.end()));
 	std::vector<int> result;
 
 	int l = 0, r = 0;
@@ -663,8 +663,8 @@ std::vector<int> BringmannSolver::colorCodingLayer(std::vector<int> Z, int t, in
 	}
 
 	auto Zpartition = randomPartition(Z, m);
-	double gamma = 6 * std::log(l/delta0) / std::log(2.0);
-	std::vector<std::vector<int>> Sj;
+	double gamma = 6 * std::log(l/delta) / std::log(2.0);
+	std::vector<std::vector<int>> S;
 	for(int j = 0; j < m; j++){
 		S[j] = colorCoding(Zpartition[j], 2*gamma*t/l, gamma, delta/l);
 	}

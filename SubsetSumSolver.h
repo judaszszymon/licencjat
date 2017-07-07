@@ -65,7 +65,7 @@ private:
 	std::vector<int> colorCodingLayer(std::vector<int> Z, int t, int l, double delta);
 	std::vector<int> fasterSubsetSum(std::vector<int> Z, int t, double delta);
 	std::vector<std::vector<int>> randomPartition(std::vector<int> Z, int numberOfBuckets);
-	std::vector<int> mergeTo(std::vector<int>& base, std::vector<int> addition);
+	std::vector<int> mergeTo(std::vector<int>& left, std::vector<int>& right);
 };
 
 #endif /* SUBSETSUMSOLVER_H_ */
