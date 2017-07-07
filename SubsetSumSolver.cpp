@@ -678,8 +678,35 @@ std::vector<int> BringmannSolver::colorCodingLayer(std::vector<int> Z, int t, in
 	return S[0];
 }
 
-std::vector<int> BringmannSolver::fasterSubsetSum(std::vector<int> Z, int t, double delta){
+std::vector<std::vector<int>> BringmannSolver::logSplit(std::vector<int>& tab, int t){
+	std::vector<std::vector<int>> result;
 
+	for(int el : tab){
+		if(el > t){
+			continue;
+		}
+
+		int index = std::floor(std::log(static_cast<double>(t)/el));
+		if(result.size() <= index){
+			result.resize(index);
+		}
+		result[index].push_back(el);
+	}
+
+	return result;
+}
+
+std::vector<int> BringmannSolver::fasterSubsetSum(std::vector<int> Z, int t, double delta){
+	std::vector<int> result;
+	int n = Z.size();
+
+	std::vector<std::vector<int>> Zsplit = logSplit(Z, t);
+	double deltaLogn = delta / std::ceil((std::log(n) / std::log(2)));
+	for(int i = 0 ; i < Zsplit.size(); i++){
+		auto ts = colorCodingLayer(Zsplit[i], t, 1 << i, delta);
+		result = helper.fftSumset(result, ts, t);
+	}
+	return result;
 }
 
 

@@ -66,6 +66,7 @@ private:
 	std::vector<int> fasterSubsetSum(std::vector<int> Z, int t, double delta);
 	std::vector<std::vector<int>> randomPartition(std::vector<int> Z, int numberOfBuckets);
 	std::vector<int> mergeTo(std::vector<int>& left, std::vector<int>& right);
+	std::vector<std::vector<int>> logSplit(std::vector<int>& tab, int t);
 };
 
 #endif /* SUBSETSUMSOLVER_H_ */
