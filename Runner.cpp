@@ -12,6 +12,7 @@ std::vector<std::tuple<std::vector<int>, int, char*>> TestLoader::loadTests(){
 	std::vector<std::tuple<std::vector<int>, int, char*>> result;
 	std::vector<char*> filenamesVect;
 
+	filenamesVect.push_back((char*)"tests/yes_5_5.txt");
 	filenamesVect.push_back((char*)"tests/yes_6_4.txt");
 	filenamesVect.push_back((char*)"tests/yes_10_6.txt");
 	filenamesVect.push_back((char*)"tests/yes_20_8.txt");

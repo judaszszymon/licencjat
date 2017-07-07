@@ -13,6 +13,13 @@
 
 SubsetSumSolver::~SubsetSumSolver(){}
 
+/*void print(std::vector<int> tab){
+	for(int i : tab){
+		std::cout << i << " ";
+	}
+	std::cout << std::endl;
+}*/
+
 void vector_many(std::vector<int>& vect, int element, int count){
 	while(count-- > 0){
 		vect.push_back(element);
@@ -234,7 +241,7 @@ void normalize2dTab(std::vector<std::vector<double>>& tabA, std::vector<std::vec
 
 std::vector<int> charPolyToTab(std::vector<double>& tab, int u){
 	std::vector<int> result;
-	int end = std::min<int>(tab.size(), u);
+	int end = std::min<int>(tab.size(), u+1);
 	for(int i = 0; i < end; i++){
 		if(tab[i] > 0.5 * tab.size()){
 			result.push_back(i);
@@ -571,8 +578,18 @@ std::vector<int> KoiliarisXuSolver::generateViaTheorem_2_2(std::vector<int>& tab
 	for(i = 0; i < tab.size(); i++){
 		partition[i%2].push_back(tab[i]);
 	}
+//	std::cout << "part1 " << std::endl;
+//	print(partition[0]);
+//	std::cout << "part2 " << std::endl;
+//	print(partition[1]);
+
 	auto sumA = theorem_2_2(partition[0], u);
 	auto sumB = theorem_2_2(partition[1], u);
+//	std::cout << "suma " << std::endl;
+//	print(sumA);
+//	std::cout << "sumb " << std::endl;
+//	print(sumB);
+
 
 	return helper.fftSumset(sumA, sumB, u);
 }
@@ -591,6 +608,7 @@ bool KoiliarisXuSolver::solve(std::vector<int>& tab, int s){
 	} else{
 		sumsets = generateViaTheorem_2_2(tab, s);
 	}
+//	print(sumsets);
 	for(int i : sumsets){
 		if(i==s){
 			return true;
