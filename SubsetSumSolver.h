@@ -8,12 +8,15 @@ class Helpers{
 public:
 	std::vector<int> reduce(std::vector<int>& tab, int s);
 	std::vector<int> fftSumset(std::vector<int>& tabA, std::vector<int>& tabB, int u);
+	std::vector<int> naiveSumset(std::vector<int>& tabA, std::vector<int>& tabB, int u);
 	std::vector<std::pair<int, int>> fftSumset2d(std::vector<std::pair<int, int>>& tabA, std::vector<std::pair<int, int>>& tabB, int u, int v);
 
 	// from two list
 	std::vector<int> generate(std::vector<int>& tab, int s, bool (*comp)(int, int));
 	std::vector<int> merge(std::vector<int>& tab_a, std::vector<int>& tab_b, bool (*comp)(int, int));
-
+	Helpers();
+private:
+	const int CAP;
 };
 
 class SubsetSumSolver{
@@ -59,12 +62,15 @@ private:
 class BringmannSolver : public SubsetSumSolver{
 public:
 	virtual bool solve(std::vector<int>& tab, int s);
+	/**
+	 * delta in (0, 1/4]
+	 */
 	bool solve (std::vector<int>& tab, int s, double delta);
 private:
-	std::vector<int> colorCoding(std::vector<int> Z, int t, int k, double delta);
-	std::vector<int> colorCodingLayer(std::vector<int> Z, int t, int l, double delta);
-	std::vector<int> fasterSubsetSum(std::vector<int> Z, int t, double delta);
-	std::vector<std::vector<int>> randomPartition(std::vector<int> Z, int numberOfBuckets);
+	std::vector<int> colorCoding(std::vector<int>& Z, int t, int k, double delta);
+	std::vector<int> colorCodingLayer(std::vector<int>& Z, int t, int l, double delta);
+	std::vector<int> fasterSubsetSum(std::vector<int>& Z, int t, double delta);
+	std::vector<std::vector<int>> randomPartition(std::vector<int>& Z, int numberOfBuckets);
 	std::vector<int> mergeTo(std::vector<int>& left, std::vector<int>& right);
 	std::vector<std::vector<int>> logSplit(std::vector<int>& tab, int t);
 };

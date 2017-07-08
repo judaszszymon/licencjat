@@ -13,18 +13,18 @@ std::vector<std::tuple<std::vector<int>, int, char*>> TestLoader::loadTests(){
 	std::vector<char*> filenamesVect;
 
 	filenamesVect.push_back((char*)"tests/yes_5_5.txt");
-	filenamesVect.push_back((char*)"tests/yes_6_4.txt");
-	filenamesVect.push_back((char*)"tests/yes_10_6.txt");
-	filenamesVect.push_back((char*)"tests/yes_20_8.txt");
-	filenamesVect.push_back((char*)"tests/yes_30_12.txt");
-	filenamesVect.push_back((char*)"tests/yes_40_24.txt");
-	filenamesVect.push_back((char*)"tests/yes_47_37.txt");
-	filenamesVect.push_back((char*)"tests/yes_64_51.txt");
-	filenamesVect.push_back((char*)"tests/yes_82_65.txt");
-	filenamesVect.push_back((char*)"tests/yes_99_79.txt");
-	filenamesVect.push_back((char*)"tests/yes_150_120.txt");
-	filenamesVect.push_back((char*)"tests/yes_299_239.txt");
-	filenamesVect.push_back((char*)"tests/yes_600_480.txt");
+//	filenamesVect.push_back((char*)"tests/yes_6_4.txt");
+//	filenamesVect.push_back((char*)"tests/yes_10_6.txt");
+//	filenamesVect.push_back((char*)"tests/yes_20_8.txt");
+//	filenamesVect.push_back((char*)"tests/yes_30_12.txt");
+//	filenamesVect.push_back((char*)"tests/yes_40_24.txt");
+//	filenamesVect.push_back((char*)"tests/yes_47_37.txt");
+//	filenamesVect.push_back((char*)"tests/yes_64_51.txt");
+//	filenamesVect.push_back((char*)"tests/yes_82_65.txt");
+//	filenamesVect.push_back((char*)"tests/yes_99_79.txt");
+//	filenamesVect.push_back((char*)"tests/yes_150_120.txt");
+//	filenamesVect.push_back((char*)"tests/yes_299_239.txt");
+//	filenamesVect.push_back((char*)"tests/yes_600_480.txt");
 
 	for(int i = 0; i < filenamesVect.size(); i++){
 		result.push_back(loadTestFromFile(filenamesVect[i]));
@@ -69,6 +69,10 @@ std::pair<std::vector<SubsetSumSolver*>, std::vector<char*>> TestRunner::prepare
 
 	solversInstances.push_back(new KoiliarisXuSolver());
 	solverNames.push_back((char*) "Koiliaris Xu Solver");
+
+
+	solversInstances.push_back(new BringmannSolver());
+	solverNames.push_back((char*) "Bringmann Solver");
 
 	assert(solverNames.size() == solversInstances.size());
 

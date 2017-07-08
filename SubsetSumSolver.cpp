@@ -13,12 +13,15 @@
 
 SubsetSumSolver::~SubsetSumSolver(){}
 
-/*void print(std::vector<int> tab){
+void print(std::vector<int> tab){
 	for(int i : tab){
 		std::cout << i << " ";
 	}
 	std::cout << std::endl;
-}*/
+}
+
+Helpers::Helpers() : CAP(100){
+}
 
 void vector_many(std::vector<int>& vect, int element, int count){
 	while(count-- > 0){
@@ -200,6 +203,10 @@ std::vector<double> tabToCharPoly(std::vector<int>& tab){
 		}
 		result[i] = 1;
 	}
+	if(result.size() == 0){
+		result.resize(1);
+	}
+	result[0] = 1;
 	return result;
 }
 
@@ -304,7 +311,35 @@ void addVect(fftw_complex* u, fftw_complex* w, fftw_complex* v, int n){
 	}
 }
 
+std::vector<int> Helpers::naiveSumset(std::vector<int>& tabA, std::vector<int>& tabB, int u){
+	std::vector<int> result;
+	std::set<int> resultSet;
+	resultSet.insert(0);
+	for(int a : tabA){
+		for(int b : tabB){
+			resultSet.insert(a+b);
+		}
+	}
+
+	for(int a : tabA){
+		resultSet.insert(a);
+	}
+	for(int b : tabB){
+		resultSet.insert(b);
+	}
+
+	for(int a : resultSet){
+		result.push_back(a);
+	}
+	return result;
+}
+
+
 std::vector<int> Helpers::fftSumset(std::vector<int>& tabA, std::vector<int>& tabB, int u){
+	if(tabA.size() < CAP && tabB.size() < CAP && tabA.size() * tabB.size() < CAP){
+		return naiveSumset(tabA, tabB, u);
+	}
+
 	std::vector<double> polyCharA = tabToCharPoly(tabA);
 	std::vector<double> polyCharB = tabToCharPoly(tabB);
 	std::vector<double> polyCharC;
@@ -328,9 +363,9 @@ std::vector<int> Helpers::fftSumset(std::vector<int>& tabA, std::vector<int>& ta
 	outB = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * degree);
 
 	fftw_import_wisdom_from_filename("wisdom.wis");
-	planA = fftw_plan_dft_1d(degree, inA, outA, FFTW_FORWARD, FFTW_MEASURE);
-	planB = fftw_plan_dft_1d(degree, inB, outB, FFTW_FORWARD, FFTW_MEASURE);
-	planC = fftw_plan_dft_1d(degree, inA, outA, FFTW_BACKWARD, FFTW_MEASURE);
+	planA = fftw_plan_dft_1d(degree, inA, outA, FFTW_FORWARD, FFTW_ESTIMATE);
+	planB = fftw_plan_dft_1d(degree, inB, outB, FFTW_FORWARD, FFTW_ESTIMATE);
+	planC = fftw_plan_dft_1d(degree, inA, outA, FFTW_BACKWARD, FFTW_ESTIMATE);
 	fftw_export_wisdom_to_filename("wisdom.wis");
 
 	putToComplex(polyCharA, inA);
@@ -617,7 +652,9 @@ bool KoiliarisXuSolver::solve(std::vector<int>& tab, int s){
 	return false;
 }
 
-std::vector<std::vector<int>> BringmannSolver::randomPartition(std::vector<int> Z, int numberOfBuckets){
+std::vector<std::vector<int>> BringmannSolver::randomPartition(std::vector<int>& Z, int numberOfBuckets){
+//	std::cout << "enter rp" <<std::endl;
+
 	std::vector<std::vector<int>> result(numberOfBuckets);
 
 	std::random_device rd;
@@ -628,10 +665,20 @@ std::vector<std::vector<int>> BringmannSolver::randomPartition(std::vector<int> 
 		int bucketNumber = dis(gen);
 		result[bucketNumber].push_back(number);
 	}
+//	std::cout << "exit rp" <<std::endl;
 	return result;
 }
 
 std::vector<int> BringmannSolver::mergeTo(std::vector<int>& left, std::vector<int>& right){
+	/*std::cout << "enter mt" <<std::endl;
+	std::cout << "left ";
+	print(left);
+	std::cout << std::endl;
+	std::cout << "right ";
+	print(right);
+	std::cout << std::endl;
+
+
 	assert(std::is_sorted(left.begin(), left.end()));
 	assert(std::is_sorted(right.begin(), right.end()));
 	std::vector<int> result;
@@ -650,27 +697,54 @@ std::vector<int> BringmannSolver::mergeTo(std::vector<int>& left, std::vector<in
 	while (r < right.size() ){
 		result.push_back(right[r++]);
 	}
+	std::cout << "exit mt ";
+	print(result);
+
+	std::cout<<std::endl;*/
+	std::set<int> resultSet;
+	std::vector<int> result;
+	resultSet.insert(0);
+	for(int i : left){
+		resultSet.insert(i);
+	}
+	for(int i : right){
+		resultSet.insert(i);
+	}
+	for(int i : resultSet){
+		result.push_back(i);
+	}
+
+
 	return result;
 }
 
 
 
-std::vector<int> BringmannSolver::colorCoding(std::vector<int> Z, int t, int k, double delta){
+std::vector<int> BringmannSolver::colorCoding(std::vector<int>& Z, int t, int k, double delta){
+	std::cout << "enter cc: t, k, delta " << t << " "<< k << " " << delta << std::endl;
+	print(Z);
+
 	int end = std::log(1.0 / delta) / std::log(4.0 / 3.0);
 	end++;
 	std::vector<int> result;
 	for(int i = 0; i < end; i++){
 		auto partition = randomPartition(Z, k*k);
-		std::vector<int> Sj;
+		std::vector<int> Sj(1,0);
 		for (std::vector<int>& bucket : partition){
 			Sj = helper.fftSumset(Sj, bucket, t);
 		}
 		result = mergeTo(result, Sj);
 	}
+	std::cout << "exit cc ";
+	print(result);
+
+	std::cout << std::endl;
 	return result;
 }
 
-std::vector<int> BringmannSolver::colorCodingLayer(std::vector<int> Z, int t, int l, double delta){
+std::vector<int> BringmannSolver::colorCodingLayer(std::vector<int>& Z, int t, int l, double delta){
+	std::cout << "enter ccl" <<std::endl;
+	int n = Z.size();
 	if(l < std::log(l/delta) / std::log(2)){
 		return colorCoding(Z, t, l, delta);
 	}
@@ -679,53 +753,80 @@ std::vector<int> BringmannSolver::colorCodingLayer(std::vector<int> Z, int t, in
 	while (mSquare <= m){
 		mSquare *= 2;
 	}
-
+	m = mSquare;
 	auto Zpartition = randomPartition(Z, m);
 	double gamma = 6 * std::log(l/delta) / std::log(2.0);
-	std::vector<std::vector<int>> S;
+	std::vector<std::vector<int>> S(m);
 	for(int j = 0; j < m; j++){
 		S[j] = colorCoding(Zpartition[j], 2*gamma*t/l, gamma, delta/l);
 	}
 
 	for(int h = 1; h < m; h*=2){
 		for(int j = 0; j + h < m; j += 2*h){
+			std::cout << "loop: h, j = " << h << ", " << j <<std::endl;
 			S[j] = helper.fftSumset(S[j], S[j+h], h*2*gamma*t/l);
 		}
 	}
-
+	std::cout << "exit  ccl ";
+	print(S[0]);
+	std::cout <<std::endl;
 	return S[0];
 }
 
 std::vector<std::vector<int>> BringmannSolver::logSplit(std::vector<int>& tab, int t){
 	std::vector<std::vector<int>> result;
+	std::cout << "enter ls" <<std::endl;
 
 	for(int el : tab){
 		if(el > t){
 			continue;
 		}
 
-		int index = std::floor(std::log(static_cast<double>(t)/el));
+		int index = std::floor(std::log(static_cast<double>(t)/el) / std::log(2.0));
 		if(result.size() <= index){
-			result.resize(index);
+			result.resize(index+1);
 		}
 		result[index].push_back(el);
 	}
+	std::cout << "exit ls" << std::endl;
+	for(auto r : result){
+		print(r);
+	}
+
+	std::cout << std::endl;
 
 	return result;
 }
 
-std::vector<int> BringmannSolver::fasterSubsetSum(std::vector<int> Z, int t, double delta){
-	std::vector<int> result;
+std::vector<int> BringmannSolver::fasterSubsetSum(std::vector<int>& Z, int t, double delta){
+	std::vector<int> result(1,0);
 	int n = Z.size();
-
+	std::cout << "enter fss" <<std::endl;
 	std::vector<std::vector<int>> Zsplit = logSplit(Z, t);
 	double deltaLogn = delta / std::ceil((std::log(n) / std::log(2)));
 	for(int i = 0 ; i < Zsplit.size(); i++){
-		auto ts = colorCodingLayer(Zsplit[i], t, 1 << i, delta);
+		auto ts = colorCodingLayer(Zsplit[i], t, 1 << i, deltaLogn);
+		std::cout << "loop ffs";
+		print(ts);
 		result = helper.fftSumset(result, ts, t);
 	}
+	std::cout << "exit fss ";
+	print(result);
+	std::cout << std::endl;
 	return result;
 }
 
+bool BringmannSolver::solve(std::vector<int>& tab, int s){
+	return solve(tab, s, 0.1);
+}
+bool BringmannSolver::solve(std::vector<int>& tab, int s, double delta){
+	auto subsets = fasterSubsetSum(tab, s, delta);
+	for(int i : subsets){
+		if(i == s){
+			return true;
+		}
+	}
+	return false;
+}
 
 
