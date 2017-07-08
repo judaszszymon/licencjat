@@ -110,8 +110,8 @@ std::pair<std::vector<SubsetSumSolver*>, std::vector<char*>> TestRunner::prepare
 //	solversInstances.push_back(new TwoListSolver());
 //	solverNames.push_back((char*) "two list solver");
 
-//	solversInstances.push_back(new KoiliarisXuSolver());
-//	solverNames.push_back((char*) "Koiliaris Xu Solver");
+	solversInstances.push_back(new KoiliarisXuSolver());
+	solverNames.push_back((char*) "Koiliaris Xu Solver");
 
 
 //	solversInstances.push_back(new BringmannSolver());

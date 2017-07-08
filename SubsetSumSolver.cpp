@@ -342,11 +342,9 @@ std::vector<int> Helpers::fftSumset(std::vector<int>& tabA, std::vector<int>& ta
 	outA = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * degree);
 	outB = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * degree);
 
-	fftw_import_wisdom_from_filename("wisdom.wis");
-	planA = fftw_plan_dft_1d(degree, inA, outA, FFTW_FORWARD, FFTW_ESTIMATE);
-	planB = fftw_plan_dft_1d(degree, inB, outB, FFTW_FORWARD, FFTW_ESTIMATE);
-	planC = fftw_plan_dft_1d(degree, inA, outA, FFTW_BACKWARD, FFTW_ESTIMATE);
-	fftw_export_wisdom_to_filename("wisdom.wis");
+	planA = fftw_plan_dft_1d(degree, inA, outA, FFTW_FORWARD, FFTW_MEASURE);
+	planB = fftw_plan_dft_1d(degree, inB, outB, FFTW_FORWARD, FFTW_MEASURE);
+	planC = fftw_plan_dft_1d(degree, inA, outA, FFTW_BACKWARD, FFTW_MEASURE);
 
 	putToComplex(polyCharA, inA);
 	putToComplex(polyCharB, inB);
@@ -650,8 +648,7 @@ std::vector<int> BringmannSolver::mergeTo(std::vector<int>& left, std::vector<in
 
 
 std::vector<int> BringmannSolver::colorCoding(std::vector<int>& Z, int t, int k, double delta){
-	int end = std::log(1.0 / delta) / std::log(4.0 / 3.0);
-	end++;
+	int end = std::ceil(std::log(1.0 / delta) / std::log(4.0 / 3.0));
 	std::vector<int> result;
 	for(int i = 0; i < end; i++){
 		auto partition = randomPartition(Z, k*k);
@@ -669,11 +666,8 @@ std::vector<int> BringmannSolver::colorCodingLayer(std::vector<int>& Z, int t, i
 	if(l < std::log(l/delta) / std::log(2)){
 		return colorCoding(Z, t, l, delta);
 	}
-	double m = l / std::log(l/delta);
-	int mSquare = 1;
-	while (mSquare <= m){ // TODO log2
-		mSquare *= 2;
-	}
+	double m = l / (std::log(l/delta) / std::log(2.0));
+	int mSquare = 1 << static_cast<int>(std::ceil(std::log(m) / std::log(2.0)));
 	m = mSquare;
 	auto Zpartition = randomPartition(Z, m);
 	double gamma = 6 * std::log(l/delta) / std::log(2.0);
