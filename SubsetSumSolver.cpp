@@ -13,7 +13,7 @@
 
 SubsetSumSolver::~SubsetSumSolver(){}
 
-Helpers::Helpers() : CAP(100){
+Helpers::Helpers() : CAP(370){
 }
 
 void vector_many(std::vector<int>& vect, int element, int count){
@@ -592,6 +592,9 @@ std::vector<int> KoiliarisXuSolver::generateViaTheorem_2_2(std::vector<int>& tab
 	return helper.fftSumset(sumA, sumB, u);
 }
 
+/**
+ * When sum is small
+ */
 bool shouldRecursive(std::vector<int>& tab, int s){
 	return false;
 	//TODO provide implementation
@@ -629,37 +632,6 @@ std::vector<std::vector<int>> BringmannSolver::randomPartition(std::vector<int>&
 }
 
 std::vector<int> BringmannSolver::mergeTo(std::vector<int>& left, std::vector<int>& right){
-	/*std::cout << "enter mt" <<std::endl;
-	std::cout << "left ";
-	print(left);
-	std::cout << std::endl;
-	std::cout << "right ";
-	print(right);
-	std::cout << std::endl;
-
-
-	assert(std::is_sorted(left.begin(), left.end()));
-	assert(std::is_sorted(right.begin(), right.end()));
-	std::vector<int> result;
-
-	int l = 0, r = 0;
-	while (l < left.size() && r < right.size()){
-		if(left[l] < right[r]){
-			result.push_back(left[l++]);
-		} else{
-			result.push_back(right[r++]);
-		}
-	}
-	while (l < left.size() ){
-		result.push_back(left[l++]);
-	}
-	while (r < right.size() ){
-		result.push_back(right[r++]);
-	}
-	std::cout << "exit mt ";
-	print(result);
-
-	std::cout<<std::endl;*/
 	std::set<int> resultSet;
 	std::vector<int> result;
 	resultSet.insert(0);
@@ -699,7 +671,7 @@ std::vector<int> BringmannSolver::colorCodingLayer(std::vector<int>& Z, int t, i
 	}
 	double m = l / std::log(l/delta);
 	int mSquare = 1;
-	while (mSquare <= m){
+	while (mSquare <= m){ // TODO log2
 		mSquare *= 2;
 	}
 	m = mSquare;
