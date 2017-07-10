@@ -115,6 +115,9 @@ std::vector<int> Helpers::generate(std::vector<int>& tab, int s, bool (*comp)(in
 	for(int i = 0; i < tab.size(); i++){
 		int newNumber = tab.at(i);
 		for(int j = 0; j < result.size(); j++){
+			if(newNumber + result.at(j) > s){
+				continue;
+			}
 			newPart.push_back(result.at(j) + newNumber);
 		}
 		merged = merge(result, newPart, comp);
@@ -301,13 +304,22 @@ std::vector<int> Helpers::naiveSumset(std::vector<int>& tabA, std::vector<int>& 
 	resultSet.insert(0);
 	for(int a : tabA){
 		for(int b : tabB){
+			if(a+b > u){
+				continue;
+			}
 			resultSet.insert(a+b);
 		}
 	}
 	for(int a : tabA){
+		if(a>u){
+			continue;
+		}
 		resultSet.insert(a);
 	}
 	for(int b : tabB){
+		if(b > u){
+			continue;
+		}
 		resultSet.insert(b);
 	}
 	for(int a : resultSet){
@@ -686,13 +698,17 @@ std::vector<int> BringmannSolver::colorCodingLayer(std::vector<int>& Z, int t, i
 
 std::vector<std::vector<int>> BringmannSolver::logSplit(std::vector<int>& tab, int t){
 	std::vector<std::vector<int>> result;
+	int logn = static_cast<int>(std::ceil(std::log(tab.size()) / std::log(2)) + 0.5);
 
 	for(int el : tab){
 		if(el > t){
 			continue;
 		}
 
-		int index = std::floor(std::log(static_cast<double>(t)/el) / std::log(2.0));
+		int index = 1;
+		while(t / (1 << index) > el && index < logn){
+			index++;
+		}
 		if(result.size() <= index){
 			result.resize(index+1);
 		}
@@ -706,7 +722,7 @@ std::vector<int> BringmannSolver::fasterSubsetSum(std::vector<int>& Z, int t, do
 	int n = Z.size();
 	std::vector<std::vector<int>> Zsplit = logSplit(Z, t);
 	double deltaLogn = delta / std::ceil((std::log(n) / std::log(2)));
-	for(int i = 0 ; i < Zsplit.size(); i++){
+	for(int i = 1; i < Zsplit.size(); i++){
 		auto ts = colorCodingLayer(Zsplit[i], t, 1 << i, deltaLogn);
 		result = helper.fftSumset(result, ts, t);
 	}
